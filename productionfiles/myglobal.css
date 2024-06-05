@@ -6,7 +6,7 @@ body {
   color: #585d74;
 }
 .topnav {
-  background-color:#375BDC;
+  background-color:#3358dd;
   color:#ffffff;
   padding:10px;
 }
@@ -18,7 +18,7 @@ body {
   text-decoration: underline;
 }
 .mycard {
-  background-color: #f1f1f1;
+  background-color: #f1f1f2;
   background-image: linear-gradient(to bottom, #375BDC, #4D70EF); 
   background-size: 100% 120px;
   background-repeat: no-repeat;
