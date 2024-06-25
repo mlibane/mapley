@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Search Bar -->
+    <div class="relative mb-8">
+        <input
+            type="text"
+            placeholder="Search 2M+ recipes"
+            class="w-full p-3 pl-12 pr-4 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+        <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    </div>
+
+    <!-- Cuisines Section -->
+    <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">What are your favorite cuisines?</h2>
+        <div class="flex space-x-4 overflow-x-auto pb-4">
+            {% for cuisine in cuisines %}
+                <div class="flex flex-col items-center flex-shrink-0">
+                    <img src="{{ cuisine.image }}" alt="{{ cuisine.name }}" class="w-20 h-20 rounded-full object-cover mb-2">
+                    <span class="text-xs text-center">{{ cuisine.name }}</span>
+                </div>
+            {% endfor %}
+        </div>
+        <button class="mt-4 bg-teal-500 text-white px-6 py-2 rounded">Next</button>
+    </section>
+
+    <!-- App Download Banner -->
+    <div class="bg-green-50 p-4 rounded-lg flex items-center justify-between mb-8">
+        <div>
+            <h3 class="font-semibold">Get our app and take us with you</h3>
+            <p class="text-sm text-gray-600">Recipes, smart shopping list + more on your phone</p>
+        </div>
+        <button class="bg-orange-500 text-white px-4 py-2 rounded">Download For Free</button>
+    </div>
+
+    <!-- Just For You Section -->
+    <section>
+        <h2 class="text-xl font-semibold mb-4">Just For You</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {% for recipe in recipes %}
+                <div class="border rounded-lg overflow-hidden">
+                    <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="w-full h-32 object-cover">
+                    <div class="p-2">
+                        <h3 class="text-sm font-semibold">{{ recipe.title }}</h3>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

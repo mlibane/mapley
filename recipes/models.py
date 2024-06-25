@@ -2,15 +2,19 @@ from django.db import models
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils.text import slugify
 from django.utils import timezone
-
+from django.contrib.auth.models import User
 class Member(models.Model):
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20, null=True)  # Changed to CharField to support various phone number formats
+    phone = models.CharField(max_length=20, null=True)
     joined_date = models.DateField(null=True)
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
+
+class Cuisine(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='cuisines/')
 
 class Recipe(models.Model):
     title = models.CharField(max_length=200, default='Untitled')
@@ -51,7 +55,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.title
-    
 
 class Tag(models.Model):
     name = models.CharField(max_length=100)
@@ -59,3 +62,13 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    favorite_cuisines = models.ManyToManyField(Cuisine)
+    saved_recipes = models.ManyToManyField(Recipe)
+
+class MealPlan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    recipes = models.ManyToManyField(Recipe)

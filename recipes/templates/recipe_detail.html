@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ recipe.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'recipes/style.css' %}">
+</head>
+<body>
+    <h1>{{ recipe.title }}</h1>
+    <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
+    <h2>Ingredients</h2>
+    <ul>
+        {% for ingredient in recipe.ingredients %}
+        <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Instructions</h2>
+    <p>{{ recipe.instructions }}</p>
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>

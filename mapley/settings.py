@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 import environ
+
+
 
 env = environ.Env()
 
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.staticfiles',
     'recipes.apps.RecipesConfig',
+    'rest_framework',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -65,7 +68,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates', 
+            os.path.join(BASE_DIR, 'mapley', 'templates'),
+            os.path.join(BASE_DIR, 'mystaticfiles', 'templates'),
+            os.path.join(BASE_DIR, 'recipes', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -78,6 +83,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'mapley.wsgi.application'
 
