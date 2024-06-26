@@ -1,29 +1,35 @@
 // src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
-import SearchBar from './components/SearchBar';
-import Sidebar from './components/Sidebar';
-import Home from './pages/Home';
+   import React from 'react';
+   import SearchBar from './components/SearchBar';
+   import Auth from './components/Auth';
+   import CuisineSelection from './components/CuisineSelection';
+   import FeaturedRecipes from './components/FeaturedRecipes';
 
-function App() {
-  return (
-    <Router>
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-            <Switch>
-              <Route exact path="/" component={Home} />
-              {/* Add more routes as needed */}
-            </Switch>
-          </main>
-        </div>
-      </div>
-    </Router>
-  );
-}
+   const App = () => {
+     const handleSearch = (searchTerm) => {
+       console.log('Searching for:', searchTerm);
+       // Implement actual search logic here
+     };
 
-export default App;
+     return (
+       <div className="content-wrapper">
+         <header className="bg-white shadow-md">
+           {/* ... header content ... */}
+           <Auth />
+         </header>
+
+         <main className="container mx-auto px-4 py-8">
+           <h1 className="text-4xl font-bold text-center mb-4">Discover Delicious Recipes</h1>
+           <SearchBar onSearch={handleSearch} />
+           <CuisineSelection />
+           <FeaturedRecipes />
+         </main>
+
+         <footer className="bg-gray-800 text-white mt-12">
+           {/* ... footer content ... */}
+         </footer>
+       </div>
+     );
+   };
+
+   export default App;
