@@ -4,52 +4,32 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div class="md:flex">
-            <div class="md:flex-shrink-0">
-                {% if recipe.image %}
-                    <img class="h-48 w-full object-cover md:w-48" src="{{ recipe.image }}" alt="{{ recipe.title }}">
-                {% else %}
-                    <div class="h-48 w-full md:w-48 bg-gray-200 flex items-center justify-center">No Image</div>
-                {% endif %}
-            </div>
-            <div class="p-8">
-                <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{{ recipe.cuisines|join:", " }}</div>
-                <h1 class="mt-1 text-4xl leading-tight font-bold text-gray-900">{{ recipe.title }}</h1>
-                <p class="mt-2 text-gray-600">{{ recipe.summary|safe }}</p>
-            </div>
-        </div>
-        
-        <div class="px-8 py-4 bg-gray-100">
-            <div class="flex flex-wrap justify-between text-sm text-gray-600">
-                <div class="mr-4 mb-2">
-                    <span class="font-bold">Prep Time:</span> {{ recipe.preparationMinutes }} minutes
-                </div>
-                <div class="mr-4 mb-2">
-                    <span class="font-bold">Cook Time:</span> {{ recipe.cookingMinutes }} minutes
-                </div>
-                <div class="mr-4 mb-2">
-                    <span class="font-bold">Total Time:</span> {{ recipe.readyInMinutes }} minutes
-                </div>
-                <div class="mb-2">
-                    <span class="font-bold">Servings:</span> {{ recipe.servings }}
-                </div>
-            </div>
-        </div>
-        
-        <div class="p-8">
-            <h2 class="text-2xl font-bold mb-4">Ingredients</h2>
-            <ul class="list-disc pl-5">
-                {% for ingredient in recipe.extendedIngredients %}
-                    <li>{{ ingredient.original }}</li>
+        <img src="{{ recipe.strMealThumb }}" alt="{{ recipe.strMeal }}" class="w-full h-64 object-cover">
+        <div class="p-6">
+            <h1 class="text-3xl font-bold mb-4">{{ recipe.strMeal }}</h1>
+            <p class="text-gray-600 mb-4">Category: {{ recipe.strCategory }}</p>
+            <p class="text-gray-600 mb-4">Region: {{ recipe.strArea }}</p>
+            
+            <h2 class="text-2xl font-semibold mb-2">Ingredients</h2>
+            <ul class="list-disc pl-5 mb-6">
+                {% for ingredient in ingredients %}
+                    <li>{{ ingredient.measure }} {{ ingredient.name }}</li>
                 {% endfor %}
             </ul>
             
-            <h2 class="text-2xl font-bold mt-8 mb-4">Instructions</h2>
-            <ol class="list-decimal pl-5">
-                {% for step in recipe.analyzedInstructions.0.steps %}
-                    <li class="mb-2">{{ step.step }}</li>
+            <h2 class="text-2xl font-semibold mb-2">Instructions</h2>
+            <ol class="list-decimal pl-5 mb-6">
+                {% for step in instructions %}
+                    <li class="mb-2">{{ step }}</li>
                 {% endfor %}
             </ol>
+            
+            {% if recipe.strYoutube %}
+                <h2 class="text-2xl font-semibold mb-2">Video Tutorial</h2>
+                <div class="aspect-w-16 aspect-h-9 mb-6">
+                    <iframe src="https://www.youtube.com/embed/{{ recipe.strYoutube|slice:'32:' }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

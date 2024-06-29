@@ -3,48 +3,42 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Recipe Search</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center">Recipe Search</h1>
 
-    <form method="GET" action="{% url 'search' %}" class="mb-8">
-        <div class="flex flex-wrap -mx-2 mb-4">
-            <div class="w-full md:w-1/2 px-2 mb-4 md:mb-0">
-                <input type="text" name="q" value="{{ query }}" placeholder="Search recipes..." class="w-full p-2 border rounded">
-            </div>
-            <div class="w-full md:w-1/4 px-2 mb-4 md:mb-0">
-                <select name="cuisine" class="w-full p-2 border rounded">
-                    <option value="">All Cuisines</option>
-                    {% for cuisine_option in cuisines %}
-                        <option value="{{ cuisine_option }}" {% if cuisine == cuisine_option %}selected{% endif %}>
-                            {{ cuisine_option }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="w-full md:w-1/4 px-2">
-                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Search
-                </button>
-            </div>
+    <form method="GET" action="{% url 'search' %}" class="mb-12">
+        <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search recipes..." class="w-full md:w-1/2 p-3 border rounded-md focus:ring-2 focus:ring-green-500">
+            <select name="cuisine" class="w-full md:w-1/4 p-3 border rounded-md focus:ring-2 focus:ring-green-500">
+                <option value="">All Cuisines</option>
+                {% for cuisine_option in cuisines %}
+                    <option value="{{ cuisine_option }}" {% if cuisine == cuisine_option %}selected{% endif %}>
+                        {{ cuisine_option }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                Search
+            </button>
         </div>
     </form>
 
     {% if recipes %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for recipe in recipes %}
-                <div class="border rounded-lg overflow-hidden shadow-lg">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg">
                     {% if recipe.image %}
                         <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
                     {% else %}
                         <div class="w-full h-48 bg-gray-200 flex items-center justify-center">No Image</div>
                     {% endif %}
-                    <div class="p-4">
+                    <div class="p-6">
                         <h2 class="text-xl font-semibold mb-2">{{ recipe.title }}</h2>
                         <p class="text-sm text-gray-600 mb-4">{{ recipe.summary|truncatewords:20|safe }}</p>
                         <div class="flex justify-between text-sm text-gray-500 mb-4">
                             <span>Ready in {{ recipe.readyInMinutes }} minutes</span>
                             <span>Servings: {{ recipe.servings }}</span>
                         </div>
-                        <a href="{% url 'recipe_detail' recipe.id recipe.slug %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-block">
+                        <a href="{% url 'recipe_detail' recipe.id recipe.slug %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
                             View Recipe
                         </a>
                     </div>
@@ -53,25 +47,25 @@
         </div>
 
         {% if page_obj.has_other_pages %}
-            <div class="flex justify-center mt-8">
+            <div class="flex justify-center mt-12">
                 {% if page_obj.has_previous %}
-                    <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ page_obj.previous_page_number }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                    <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ page_obj.previous_page_number }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l transition duration-300">
                         Previous
                     </a>
                 {% endif %}
 
                 {% for i in page_obj.paginator.page_range %}
                     {% if page_obj.number == i %}
-                        <span class="bg-blue-500 text-white font-bold py-2 px-4">{{ i }}</span>
+                        <span class="bg-green-600 text-white font-bold py-2 px-4">{{ i }}</span>
                     {% else %}
-                        <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ i }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4">
+                        <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ i }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 transition duration-300">
                             {{ i }}
                         </a>
                     {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
-                    <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ page_obj.next_page_number }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
+                    <a href="?q={{ query }}&cuisine={{ cuisine }}&page={{ page_obj.next_page_number }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r transition duration-300">
                         Next
                     </a>
                 {% endif %}

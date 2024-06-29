@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meal Planner - Mapley{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center">Meal Planner</h1>
+
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">This Week's Plan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+            {% for day in weekdays %}
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-semibold mb-2">{{ day }}</h3>
+                    <ul class="space-y-2">
+                        {% for meal in meals %}
+                            <li class="flex items-center justify-between">
+                                <span>{{ meal.name }}</span>
+                                <a href="{{ meal.recipe_url }}" class="text-green-600 hover:text-green-700">View</a>
+                            </li>
+                        {% empty %}
+                            <li class="text-gray-500">No meals planned</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Add to Meal Plan</h2>
+        <form action="{% url 'add_to_meal_plan' %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="day" class="block mb-2">Day:</label>
+                <select id="day" name="day" class="w-full p-2 border rounded">
+                    {% for day in weekdays %}
+                        <option value="{{ day }}">{{ day }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="meal_type" class="block mb-2">Meal Type:</label>
+                <select id="meal_type" name="meal_type" class="w-full p-2 border rounded">
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                </select>
+            </div>
+            <div>
+                <label for="recipe" class="block mb-2">Recipe:</label>
+                <select id="recipe" name="recipe" class="w-full p-2 border rounded">
+                    {% for recipe in user_recipes %}
+                        <option value="{{ recipe.id }}">{{ recipe.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors duration-300">Add to Plan</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

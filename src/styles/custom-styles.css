@@ -26,3 +26,25 @@
 .hero p {
   @apply text-xl mb-8;
 }
+
+.bg-gradient-green {
+  background: linear-gradient(to right, #4ade80, #22c55e);
+}
+
+.hover-scale {
+  transition: transform 0.3s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.card-shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-shadow:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Add more custom styles as needed */

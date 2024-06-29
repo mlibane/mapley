@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Saved Recipes - Mapley{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center">Saved Recipes</h1>
+
+    <div class="mb-8">
+        <form action="{% url 'search_saved_recipes' %}" method="GET" class="flex">
+            <input type="text" name="q" placeholder="Search saved recipes..." class="flex-grow px-4 py-2 rounded-l-full border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-r-full hover:bg-green-700 transition-colors duration-300">Search</button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for recipe in saved_recipes %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
+                <img src="{{ recipe.image.url }}" alt="{{ recipe.name }}" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">{{ recipe.name }}</h3>
+                    <p class="text-gray-600 text-sm mb-4">{{ recipe.description|truncatechars:100 }}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="{% url 'recipe_detail' recipe.id %}" class="text-green-600 hover:text-green-700 font-medium">View Recipe</a>
+                        <form action="{% url 'unsave_recipe' recipe.id %}" method="POST" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-600 hover:text-red-700" onclick="return confirm('Are you sure you want to remove this recipe from your saved list?')">
+                                <i class="fas fa-heart"></i> Unsave
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500">You haven't saved any recipes yet. Start exploring and save recipes you like!</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+        <div class="mt-8 flex justify-center">
+            <nav class="inline-flex rounded-md shadow">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Previous
+                    </a>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-2 border border-gray-300 bg-green-50 text-sm font-medium text-green-600">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Next
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

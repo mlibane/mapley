@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -11,6 +11,8 @@ from .utils import (
     search_recipes,
     get_recipe_by_id,
     get_popular_categories,
+    search_recipes_api,
+    get_featured_recipes,
 )
 from .models import Cuisine, Recipe, UserProfile, MealPlan
 from .serializers import CuisineSerializer, RecipeSerializer, UserProfileSerializer, MealPlanSerializer
@@ -22,6 +24,19 @@ from .forms import CustomUserCreationForm, RecipeForm
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.text import slugify
+from django.conf import settings
+import requests
+
+
+def get_popular_categories():
+    return [
+        {'name': 'Breakfast', 'link': '/recipes?category=Breakfast'},
+        {'name': 'Chicken', 'link': '/recipes?category=Chicken'},
+        {'name': 'Dessert', 'link': '/recipes?category=Dessert'},
+        {'name': 'Pasta', 'link': '/recipes?category=Pasta'},
+        {'name': 'Seafood', 'link': '/recipes?category=Seafood'},
+        {'name': 'Vegetarian', 'link': '/recipes?category=Vegetarian'}
+    ]
 
 def home(request):
     context = {
@@ -35,7 +50,7 @@ def home(request):
             {'name': 'Saved Recipes', 'link': '/saved-recipes', 'icon': 'saved-icon.png'},
             {'name': 'More Tools', 'link': '/more-tools', 'icon': 'tools-icon.png'},
         ],
-        'featured_recipes': get_popular_recipes(),
+        'featured_recipes': get_featured_recipes(),
         'cuisines': get_cuisines(),
         'popular_categories': get_popular_categories(),
     }
@@ -51,16 +66,35 @@ def cuisine_list_api(request):
     cuisines = get_cuisines()
     return Response(cuisines)
 
+
 def recipes(request):
-    all_recipes = Recipe.objects.all().order_by('-created_at')
-    paginator = Paginator(all_recipes, 12)  # Show 12 recipes per page
-    page_number = request.GET.get('page')
-    recipes = paginator.get_page(page_number)
+    query = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    page = int(request.GET.get('page', 1))
+    items_per_page = 10
     
+    results = search_recipes_api(query, category=category)
+    
+    if results is None:
+        messages.error(request, "An error occurred while fetching recipes. Please try again later.")
+        recipes = []
+        total_results = 0
+    else:
+        all_recipes = results['hits']
+        total_results = results['count']
+        
+        paginator = Paginator(all_recipes, items_per_page)
+        page_obj = paginator.get_page(page)
+        recipes = page_obj.object_list
+
     context = {
         'recipes': recipes,
+        'query': query,
+        'category': category,
+        'page_obj': page_obj,
     }
     return render(request, 'recipes.html', context)
+
 
 def search(request):
     query = request.GET.get('q', '')
@@ -96,20 +130,64 @@ def main(request):
     context = {}
     return render(request, 'main.html', context)
 
+def my_recipes(request):
+    context = {}
+    return render(request, 'my_recipes.html', context)
+
+def meal_planner(request):
+    context = {}
+    return render(request, 'meal_planner.html', context)
+
+def saved_recipes(request):
+    context = {}
+    return render(request, 'saved_recipes.html', context)
+
+def profile(request):
+    context = {}
+    return render(request, 'profile.html', context)
+
+def saved_recipes(request):
+    context = {}
+    return render(request, 'saved_recipes.html', context)
+
+
 def recipe_detail(request, recipe_id):
-    try:
-        recipe = get_recipe_by_id(recipe_id)
-        if recipe is None:
-            messages.error(request, "Recipe not found.")
-            return render(request, 'error.html', status=404)
-        
-        context = {
-            'recipe': recipe,
-        }
-        return render(request, 'recipe_detail.html', context)
-    except Exception as e:
-        messages.error(request, f"An error occurred: {str(e)}")
-        return render(request, 'error.html', status=500)
+    # Fetch recipe details from API
+    url = f"{settings.THEMEALDB_API_URL}lookup.php?i={recipe_id}"
+    response = requests.get(url)
+    data = response.json()
+
+    if not data['meals']:
+        # Handle case where recipe is not found
+        return render(request, 'error.html', {'message': 'Recipe not found'})
+
+    recipe = data['meals'][0]
+
+    # Process ingredients
+    ingredients = []
+    for i in range(1, 21):  # TheMealDB provides up to 20 ingredients
+        ingredient = recipe[f'strIngredient{i}']
+        measure = recipe[f'strMeasure{i}']
+        if ingredient and ingredient.strip():
+            ingredients.append({
+                'name': ingredient,
+                'measure': measure
+            })
+
+    # Process instructions
+    instructions = recipe['strInstructions'].split('\r\n')
+    instructions = [step for step in instructions if step.strip()]
+
+    context = {
+        'recipe': recipe,
+        'ingredients': ingredients,
+        'instructions': instructions,
+    }
+
+    return render(request, 'recipe_detail.html', context)
+
+
+
 
 def signup(request):
     if request.method == 'POST':

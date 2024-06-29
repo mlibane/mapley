@@ -2,140 +2,61 @@
 {% load static %}
 
 {% block content %}
-<div class="flex">
-    <!-- Sidebar Toggle Button -->
-    <button id="sidebarToggle" class="fixed top-4 left-4 z-30 p-2 bg-green-600 text-white rounded-md">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-    </button>
-
-    <!-- Sidebar (initially hidden) -->
-    <aside id="sidebar" class="bg-gray-50 w-64 min-h-screen shadow-md fixed left-0 top-0 z-20 transform -translate-x-full transition-transform duration-300 ease-in-out">
-        <div class="p-4">
-            <nav class="mt-5 space-y-1">
-                {% for item in sidebar_items %}
-                    <a href="{{ item.link }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-orange-50 hover:text-orange-600">
-                        <img src="{% static 'images/'|add:item.icon %}" alt="" class="mr-3 h-6 w-6">
-                        {{ item.name }}
-                    </a>
-                {% endfor %}
-            </nav>
+<div class="container mx-auto px-4 py-8">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-green-50 to-green-100 py-16 px-4 rounded-lg mb-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
+                <span class="block">Discover</span>
+                <span class="block text-green-600">Delicious Recipes</span>
+            </h1>
+            <p class="mt-3 max-w-md mx-auto text-base sm:text-lg md:text-xl text-gray-600">
+                Explore flavors from around the world.
+            </p>
+            <div class="mt-8 flex justify-center space-x-4">
+                <a href="{% url 'signup' %}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-full text-white bg-green-600 hover:bg-green-700 transition-all duration-300 transform hover:scale-105">
+                    Get started
+                </a>
+                <a href="{% url 'about' %}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-full text-green-700 bg-green-100 hover:bg-green-200 transition-all duration-300 transform hover:scale-105">
+                    Learn more
+                </a>
+            </div>
         </div>
-    </aside>
+    </section>
 
-    <!-- Main Content -->
-    <main class="flex-1 transition-margin duration-300 ease-in-out">
-        <!-- Hero Section -->
-        <section class="bg-green-50 py-16 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
-                <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                    <span class="block">Discover Delicious</span>
-                    <span class="block text-green-600">Recipes</span>
-                </h1>
-                <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl">
-                    Find and share the best recipes from around the world. Start your culinary journey today!
-                </p>
-                <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                    <div class="rounded-md shadow">
-                        <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 md:py-4 md:text-lg md:px-10">
-                            Get started
-                        </a>
-                    </div>
-                    <div class="mt-3 sm:mt-0 sm:ml-3">
-                        <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 md:py-4 md:text-lg md:px-10">
-                            Learn more
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Search Bar -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <form action="{% url 'search' %}" method="GET" class="mt-1 flex rounded-md shadow-sm">
-                <input type="text" name="q" id="recipe-search" class="focus:ring-green-500 focus:border-green-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Search recipes...">
-                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    Search
-                </button>
-            </form>
+    <!-- Popular Categories Section (Moved up) -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-semibold mb-6 text-center">Popular Categories</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {% for category in popular_categories %}
+                <a href="{{ category.link }}" class="bg-white p-4 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow duration-300 group">
+                    <span class="font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-300">{{ category.name }}</span>
+                </a>
+            {% endfor %}
         </div>
+    </section>
 
-        <!-- Featured Recipes Section -->
-        <section class="py-12 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-semibold mb-6 text-center">Featured Recipes</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for recipe in featured_recipes %}
-                        <a href="{% url 'recipe_detail' recipe.idMeal %}" class="block">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105">
-                                <img src="{{ recipe.strMealThumb }}" alt="{{ recipe.strMeal }}" class="w-full h-48 object-cover lazy" loading="lazy">
-                                <div class="p-4">
-                                    <h3 class="text-xl font-semibold mb-2">{{ recipe.strMeal }}</h3>
-                                    <p class="text-gray-600 text-sm">{{ recipe.strCategory }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    {% endfor %}
+    <!-- Featured Recipes Section (Moved down) -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-semibold mb-6 text-center">Featured Recipes</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for recipe in featured_recipes %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
+                    <img src="{{ recipe.strMealThumb }}" alt="{{ recipe.strMeal }}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">{{ recipe.strMeal }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ recipe.strCategory }}</p>
+                        {% if recipe.idMeal %}
+                            <a href="{% url 'recipe_detail' recipe.idMeal %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">View Recipe</a>
+                        {% else %}
+                            <span class="inline-block bg-gray-300 text-gray-600 px-4 py-2 rounded-full">Recipe Unavailable</span>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Popular Categories Section -->
-        <section class="py-12 bg-gray-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-semibold mb-6 text-center">Popular Categories</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {% for category in popular_categories %}
-                        <a href="{{ category.link }}" class="bg-white p-4 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow duration-300">
-                            <img src="{% static 'images/'|add:category.image %}" alt="{{ category.name }}" class="w-16 h-16 mx-auto mb-2">
-                            <span class="font-medium">{{ category.name }}</span>
-                        </a>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-
-        <!-- Latest Blog Posts Section -->
-        <section class="py-12 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-semibold mb-6 text-center">Latest Blog Posts</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {% for post in latest_blog_posts %}
-                        <article class="bg-gray-50 rounded-lg overflow-hidden shadow-md">
-                            <img src="{% static 'images/'|add:post.image %}" alt="{{ post.title }}" class="w-full h-48 object-cover">
-                            <div class="p-4">
-                                <h3 class="font-semibold text-lg mb-2">{{ post.title }}</h3>
-                                <p class="text-gray-600">{{ post.excerpt }}</p>
-                                <a href="{{ post.link }}" class="mt-2 inline-block text-green-600 hover:underline">Read more</a>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-
-        <!-- Join Our Community Section -->
-        <section class="py-12 bg-green-600 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl font-semibold mb-4">Join Our Culinary Community</h2>
-                <p class="mb-6">Connect with fellow food lovers, share recipes, and get inspired!</p>
-                <a href="#" class="bg-white text-green-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors duration-300">Sign Up Now</a>
-            </div>
-        </section>
-    </main>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-500">No featured recipes available at the moment.</p>
+            {% endfor %}
+        </div>
+    </section>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const main = document.querySelector('main');
-
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('-translate-x-full');
-            main.classList.toggle('ml-64');
-        });
-    });
-</script>
 {% endblock %}

@@ -19,4 +19,8 @@ urlpatterns = [
     path('verification-sent/', views.verification_sent, name='verification_sent'),
     path('email-verified/', views.email_verified, name='email_verified'),
     path('invalid-token/', views.invalid_token, name='invalid_token'),
+    path('my_recipes/', views.my_recipes, name='my_recipes'),
+    path('meal_planner/', views.meal_planner, name='meal_planner'),
+    path('saved_recipes/', views.saved_recipes, name='saved_recipes'),
+    path('profile/', views.profile, name='profile'),
 ]

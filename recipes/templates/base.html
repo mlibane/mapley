@@ -10,42 +10,112 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
-    <header class="bg-white shadow-md">
-        <nav class="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
-            <a href="{% url 'home' %}" class="text-2xl font-bold text-green-600">Mapley</a>
-            <div class="space-x-4 hidden md:block">
-                <a href="{% url 'home' %}" class="text-gray-600 hover:text-green-600">Home</a>
-                <a href="{% url 'recipes' %}" class="text-gray-600 hover:text-green-600">Recipes</a>
-                <a href="{% url 'about' %}" class="text-gray-600 hover:text-green-600">About</a>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <button id="sidebarToggle" class="text-gray-600 hover:text-green-600 mr-4" aria-label="Toggle sidebar">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <a href="{% url 'home' %}" class="text-2xl font-bold text-green-600 hover:text-green-700 transition-colors duration-300">Mapley</a>
             </div>
-            <div class="space-x-2">
-                <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Sign Up</a>
-                <a href="{% url 'login' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">Login</a>
+            <div class="hidden md:flex space-x-8 justify-center flex-grow">
+                <a href="{% url 'home' %}" class="nav-link text-gray-600 hover:text-green-600 transition-all duration-300 text-lg">Home</a>
+                <a href="{% url 'recipes' %}" class="nav-link text-gray-600 hover:text-green-600 transition-all duration-300 text-lg">Recipes</a>
+                <a href="{% url 'about' %}" class="nav-link text-gray-600 hover:text-green-600 transition-all duration-300 text-lg">About</a>
             </div>
-            <button class="md:hidden" id="mobile-menu-button">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-            </button>
+            <div class="flex items-center space-x-4">
+                <form action="{% url 'search' %}" method="GET" class="hidden md:flex items-center">
+                    <input type="text" name="q" placeholder="Search recipes..." class="px-4 py-2 w-64 rounded-l-full border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-r-full hover:bg-green-700 transition-colors duration-300">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">Sign Up</a>
+                <a href="{% url 'login' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors duration-300">Login</a>
+            </div>
         </nav>
-        <div class="md:hidden hidden" id="mobile-menu">
-            <a href="{% url 'home' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Home</a>
-            <a href="{% url 'recipes' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Recipes</a>
-            <a href="{% url 'about' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">About</a>
-        </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-8">
-        {% block content %}{% endblock %}
-    </main>
+    <div class="flex flex-grow">
+        <!-- Sidebar (initially hidden) -->
+        <aside id="sidebar" class="bg-green-50 w-64 min-h-screen shadow-md fixed left-0 top-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="p-4 mt-16">
+                <nav class="mt-5 space-y-2">
+                    <a href="{% url 'meal_planner' %}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-green-100 hover:text-green-700 transition-colors duration-300">
+                        <i class="fas fa-calendar-alt mr-3 text-gray-400 group-hover:text-green-500"></i>
+                        <span>Meal Planner</span>
+                    </a>
+                    <a href="{% url 'my_recipes' %}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-green-100 hover:text-green-700 transition-colors duration-300">
+                        <i class="fas fa-book mr-3 text-gray-400 group-hover:text-green-500"></i>
+                        <span>My Recipes</span>
+                    </a>
+                    <a href="{% url 'profile' %}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-green-100 hover:text-green-700 transition-colors duration-300">
+                        <i class="fas fa-user mr-3 text-gray-400 group-hover:text-green-500"></i>
+                        <span>User Profile</span>
+                    </a>
+                    <a href="{% url 'saved_recipes' %}" class="group flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-green-100 hover:text-green-700 transition-colors duration-300">
+                        <i class="fas fa-heart mr-3 text-gray-400 group-hover:text-green-500"></i>
+                        <span>Saved Recipes</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
 
-    <footer class="bg-gray-800 text-white mt-auto">
-        <div class="container mx-auto px-4 py-6 text-center">
-            <p>&copy; 2024 Mapley. All rights reserved.</p>
+        <main id="main-content" class="flex-grow p-6 transition-all duration-300 ease-in-out">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer id="footer" class="bg-gray-800 text-white mt-auto transition-all duration-300 ease-in-out">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'home' %}" class="hover:text-green-400 transition-colors duration-200">Home</a></li>
+                        <li><a href="{% url 'recipes' %}" class="hover:text-green-400 transition-colors duration-200">Recipes</a></li>
+                        <li><a href="{% url 'about' %}" class="hover:text-green-400 transition-colors duration-200">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Connect With Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Newsletter</h3>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="flex-grow px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition-colors duration-300">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
+                <p>&copy; 2024 Mapley. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
     <script>
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const footer = document.getElementById('footer');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.remove('ml-64');
+                footer.classList.remove('ml-64');
+            } else {
+                mainContent.classList.add('ml-64');
+                footer.classList.add('ml-64');
+            }
         });
     </script>
 </body>
