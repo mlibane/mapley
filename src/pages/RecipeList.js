@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import RecipeCard from '../components/RecipeCard';
 import RecipeCardWrapper from '../components/RecipeCardWrapper';
+import SearchBar from '../components/SearchBar';
+import { fetchRecipes } from '../utils/api';
 
 const RecipeList = () => {
   const [recipes, setRecipes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/random?number=10&apiKey=${process.env.REACT_APP_SPOONACULAR_API_KEY}`);
-        setRecipes(response.data.recipes);
-        setIsLoading(false);
-      } catch (err) {
-        setError('Failed to fetch recipes. Please try again later.');
-        setIsLoading(false);
-      }
-    };
-
-    fetchRecipes();
+    loadRecipes();
   }, []);
 
+  const loadRecipes = async () => {
+    try {
+      const data = await fetchRecipes();
+      setRecipes(data);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+    }
+  };
+
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {recipes.map(recipe => (
-        <RecipeCardWrapper
-          key={recipe.id}
-          recipe={recipe}
-          isLoading={isLoading}
-          error={error}
-        />
-      ))}
+    <div className="container mx-auto px-4">
+      <SearchBar onSearch={setSearchTerm} />
+      <RecipeCardWrapper>
+        {filteredRecipes.map(recipe => (
+          <RecipeCard key={recipe.id} recipe={recipe} />
+        ))}
+      </RecipeCardWrapper>
     </div>
   );
 };

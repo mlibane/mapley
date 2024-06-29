@@ -1,15 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Search } from 'lucide-react';
 
-const Hero = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Implement search functionality here
-    console.log('Searching for:', searchTerm);
-  };
-
+const Hero = () => { 
   return (
     <div className="bg-green-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -20,28 +12,24 @@ const Hero = () => {
         <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl">
           Find and share the best recipes from around the world. Start your culinary journey today!
         </p>
-        <form onSubmit={handleSearch} className="mt-8 sm:mx-auto sm:max-w-lg sm:flex">
-          <div className="min-w-0 flex-1">
-            <label htmlFor="search" className="sr-only">Search recipes</label>
-            <input
-              id="search"
-              type="text"
-              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              placeholder="Search recipes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+          <div className="rounded-md shadow">
+            <a
+              href="#"
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 md:py-4 md:text-lg md:px-10"
+            >
+              Get started
+            </a>
           </div>
           <div className="mt-3 sm:mt-0 sm:ml-3">
-            <button
-              type="submit"
-              className="block w-full px-4 py-3 rounded-md shadow bg-green-600 text-white font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm"
+            <a
+              href="#"
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 md:py-4 md:text-lg md:px-10"
             >
-              <Search className="h-5 w-5 inline-block mr-2" />
-              Search
-            </button>
+              Learn more
+            </a>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

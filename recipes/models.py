@@ -3,6 +3,8 @@ from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils.text import slugify
 from django.utils import timezone
 from django.contrib.auth.models import User
+import uuid
+
 class Member(models.Model):
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
@@ -55,7 +57,8 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.title
-
+    cooking_time = models.IntegerField(default=30) 
+    pass
 class Tag(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -64,7 +67,7 @@ class Tag(models.Model):
         return self.name
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) 
     favorite_cuisines = models.ManyToManyField(Cuisine)
     saved_recipes = models.ManyToManyField(Recipe)
 

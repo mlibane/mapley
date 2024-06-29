@@ -1,54 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapley - Discover Delicious Recipes</title>
+    <title>{% block title %}Mapley - Discover Delicious Recipes{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'styles/custom-styles.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body class="bg-gray-100">
+<body class="flex flex-col min-h-screen bg-gray-100">
     <header class="bg-white shadow-md">
-        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-green-600">Mapley</a>
-            <div class="space-x-4">
-                <a href="#" class="text-gray-600 hover:text-green-600">Home</a>
-                <a href="#" class="text-gray-600 hover:text-green-600">Recipes</a>
-                <a href="#" class="text-gray-600 hover:text-green-600">About</a>
+        <nav class="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <a href="{% url 'home' %}" class="text-2xl font-bold text-green-600">Mapley</a>
+            <div class="space-x-4 hidden md:block">
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-green-600">Home</a>
+                <a href="{% url 'recipes' %}" class="text-gray-600 hover:text-green-600">Recipes</a>
+                <a href="{% url 'about' %}" class="text-gray-600 hover:text-green-600">About</a>
             </div>
             <div class="space-x-2">
-                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Sign Up</button>
-                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">Login</button>
+                <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Sign Up</a>
+                <a href="{% url 'login' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">Login</a>
             </div>
+            <button class="md:hidden" id="mobile-menu-button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
         </nav>
+        <div class="md:hidden hidden" id="mobile-menu">
+            <a href="{% url 'home' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Home</a>
+            <a href="{% url 'recipes' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Recipes</a>
+            <a href="{% url 'about' %}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">About</a>
+        </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <section class="mb-8">
-            <h1 class="text-4xl font-bold text-center mb-4">Discover Delicious Recipes</h1>
-            <div class="max-w-md mx-auto">
-                <input type="text" placeholder="Search recipes..." class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600">
-            </div>
-        </section>
-
-        <section class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Choose Your Cuisine</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <!-- Cuisine buttons will go here -->
-            </div>
-        </section>
-
-        <section>
-            <h2 class="text-2xl font-semibold mb-4">Featured Recipes</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Recipe cards will go here -->
-            </div>
-        </section>
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-800 text-white mt-12">
+    <footer class="bg-gray-800 text-white mt-auto">
         <div class="container mx-auto px-4 py-6 text-center">
             <p>&copy; 2024 Mapley. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

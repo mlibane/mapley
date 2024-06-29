@@ -1,27 +1,21 @@
 import React from 'react';
-import { Clock, Users } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 const RecipeCard = ({ recipe }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
-      <img 
-        src={recipe.image} 
-        alt={recipe.title} 
-        className="w-full h-48 object-cover"
-        loading="lazy"
-      />
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <img src={recipe.image} alt={recipe.label} className="w-full h-48 object-cover" />
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{recipe.title}</h3>
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <Clock className="w-4 h-4 mr-1" />
-          <span>{recipe.readyInMinutes} mins</span>
-          <Users className="w-4 h-4 ml-4 mr-1" />
-          <span>{recipe.servings} servings</span>
+        <h3 className="text-xl font-semibold mb-2">{recipe.label}</h3>
+        <p className="text-gray-600 mb-4">Source: {recipe.source}</p>
+        <div className="flex justify-between items-center">
+          <a href={recipe.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+            View Recipe
+          </a>
+          <button className="text-gray-500 hover:text-red-500">
+            <Heart className="h-6 w-6" />
+          </button>
         </div>
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2">{recipe.summary}</p>
-        <button className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-300">
-          View Recipe
-        </button>
       </div>
     </div>
   );

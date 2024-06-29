@@ -12,19 +12,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import environ
-
+from django.core.wsgi import get_wsgi_application
 
 
 env = environ.Env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env_file = BASE_DIR / 'api_key.env'
-if env_file.exists():
-    environ.Env.read_env(str(env_file))
-
-
-SPOONACULAR_API_KEY = env('SPOONACULAR_API_KEY', default='')
+THEMEALDB_API_URL = 'https://www.themealdb.com/api/json/v1/1/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -45,11 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.postgres',
     'django.contrib.staticfiles',
-    'recipes.apps.RecipesConfig',
     'rest_framework',
+    'recipes.apps.RecipesConfig',
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -58,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'kolo.middleware.KoloMiddleware',
+    'mapley.middleware.ErrorHandlingMiddleware',
+    'mapley.middleware.SessionTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'mapley.urls'
@@ -69,7 +64,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'mapley', 'templates'),
-            os.path.join(BASE_DIR, 'mystaticfiles', 'templates'),
             os.path.join(BASE_DIR, 'recipes', 'templates'),
         ],
         'APP_DIRS': True,
@@ -83,7 +77,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 
 WSGI_APPLICATION = 'mapley.wsgi.application'
@@ -112,6 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -150,3 +146,6 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SESSION_COOKIE_AGE = 1209600  # 2 weeks, in seconds
+SESSION_COOKIE_SECURE = True  # Use only with HTTPS
+SESSION_COOKIE_HTTPONLY = True

@@ -1,35 +1,43 @@
-// src/App.js
-   import React from 'react';
-   import SearchBar from './components/SearchBar';
-   import Auth from './components/Auth';
-   import CuisineSelection from './components/CuisineSelection';
-   import FeaturedRecipes from './components/FeaturedRecipes';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Hero from './components/Hero';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Sidebar from './components/Sidebar';
+import FeaturedRecipes from './components/FeaturedRecipes';
+import RecipeList from './components/RecipeList';
 
-   const App = () => {
-     const handleSearch = (searchTerm) => {
-       console.log('Searching for:', searchTerm);
-       // Implement actual search logic here
-     };
+const Home = () => (
+  <div className="flex-grow">
+    <Hero />
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
+      <FeaturedRecipes />
+      <h2 className="text-2xl font-bold mt-8 mb-4">All Recipes</h2>
+      <RecipeList />
+    </div>
+  </div>
+);
 
-     return (
-       <div className="content-wrapper">
-         <header className="bg-white shadow-md">
-           {/* ... header content ... */}
-           <Auth />
-         </header>
+const App = () => {
+  return (
+    <Router>
+      <div className="flex flex-col min-h-screen bg-gray-100">
+        <Navbar />
+        <div className="flex flex-grow">
+          <Sidebar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/featured" element={<FeaturedRecipes />} />
+              <Route path="/recipes" element={<RecipeList />} />
+            </Routes>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    </Router>
+  );
+};
 
-         <main className="container mx-auto px-4 py-8">
-           <h1 className="text-4xl font-bold text-center mb-4">Discover Delicious Recipes</h1>
-           <SearchBar onSearch={handleSearch} />
-           <CuisineSelection />
-           <FeaturedRecipes />
-         </main>
-
-         <footer className="bg-gray-800 text-white mt-12">
-           {/* ... footer content ... */}
-         </footer>
-       </div>
-     );
-   };
-
-   export default App;
+export default App;
