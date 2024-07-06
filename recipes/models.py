@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils.text import slugify
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 import uuid
+from django.contrib.postgres.indexes import GinIndex
 
 class Member(models.Model):
     firstname = models.CharField(max_length=255)
@@ -46,18 +48,23 @@ class Recipe(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['search_vector'], name='search_vector_idx'),
+            GinIndex(fields=['search_vector']),
         ]
+
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self.generate_slug()
-        self.search_vector = SearchVector('title', 'description', 'ingredients', 'instructions')
+        self.search_vector = SearchVector('title', weight='A') + \
+                             SearchVector('description', weight='B') + \
+                             SearchVector('ingredients', weight='C') + \
+                             SearchVector('instructions', weight='D')
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
-    cooking_time = models.IntegerField(default=30) 
+
+    cooking_time = models.IntegerField(default=30)
     pass
 class Tag(models.Model):
     name = models.CharField(max_length=100)
@@ -67,9 +74,11 @@ class Tag(models.Model):
         return self.name
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE) 
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     favorite_cuisines = models.ManyToManyField(Cuisine)
     saved_recipes = models.ManyToManyField(Recipe)
+
+
 
 class MealPlan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

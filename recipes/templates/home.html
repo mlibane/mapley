@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% if debug %}
+<pre>
+Debug: recipes = {{ recipes|pprint }}
+</pre>
+{% endif %}
 {% load static %}
 
 {% block content %}

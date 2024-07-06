@@ -2,9 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Recipe 
-from django.http import JsonResponse
-from django.core.paginator import Paginator
+from .models import Cuisine, Recipe, UserProfile, MealPlan 
+from django.http import Http404, JsonResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+from supabase import create_client, Client
+import concurrent.futures
+import random
 from .utils import (
     get_cuisines,
     get_popular_recipes,
@@ -14,10 +18,11 @@ from .utils import (
     search_recipes_api,
     get_featured_recipes,
 )
-from .models import Cuisine, Recipe, UserProfile, MealPlan
 from .serializers import CuisineSerializer, RecipeSerializer, UserProfileSerializer, MealPlanSerializer
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.db.models import F
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm, RecipeForm
@@ -26,6 +31,9 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_popular_categories():
@@ -66,66 +74,90 @@ def cuisine_list_api(request):
     cuisines = get_cuisines()
     return Response(cuisines)
 
-
 def recipes(request):
-    query = request.GET.get('q', '')
-    category = request.GET.get('category', '')
-    page = int(request.GET.get('page', 1))
-    items_per_page = 10
-    
-    results = search_recipes_api(query, category=category)
-    
-    if results is None:
-        messages.error(request, "An error occurred while fetching recipes. Please try again later.")
-        recipes = []
-        total_results = 0
-    else:
-        all_recipes = results['hits']
-        total_results = results['count']
+    category = request.GET.get('category')
+    page = request.GET.get('page', 1)
+    recipes_per_page = 24  # Adjust this number as needed
+
+    try:
+        recipes_data = search_recipes_api(category=category)
+        all_recipes = recipes_data.get('meals', [])
         
-        paginator = Paginator(all_recipes, items_per_page)
-        page_obj = paginator.get_page(page)
-        recipes = page_obj.object_list
-
-    context = {
-        'recipes': recipes,
-        'query': query,
-        'category': category,
-        'page_obj': page_obj,
-    }
-    return render(request, 'recipes.html', context)
-
-
+        paginator = Paginator(all_recipes, recipes_per_page)
+        try:
+            recipes = paginator.page(page)
+        except PageNotAnInteger:
+            recipes = paginator.page(1)
+        except EmptyPage:
+            recipes = paginator.page(paginator.num_pages)
+        
+        context = {
+            'recipes': recipes,
+            'category': category,
+        }
+        return render(request, 'recipes.html', context)
+    except Exception as e:
+        logger.exception(f"Error in recipes view: {str(e)}")
+        return render(request, 'recipes.html', {'error_message': str(e)})
+    
 def search(request):
     query = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
+    results_per_page = 10
     
     if not query:
-        messages.error(request, "Please enter a search term.")
         return render(request, 'search.html')
     
     try:
-        results = search_recipes(query, offset=(page-1)*10, number=10)
+        url = f'https://www.themealdb.com/api/json/v1/1/search.php?s={query}'
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
         
-        if results is None:
-            messages.error(request, "An error occurred while searching for recipes. Please try again later.")
-            recipes = []
-            total_results = 0
-        else:
-            recipes = results['hits']
-            total_results = results['count']
-
+        all_recipes = data.get('meals', [])
+        total_results = len(all_recipes)
+        
+        # Simple pagination
+        start = (page - 1) * results_per_page
+        end = start + results_per_page
+        recipes = all_recipes[start:end]
+        
         context = {
             'recipes': recipes,
             'query': query,
             'page': page,
             'total_results': total_results,
+            'total_pages': (total_results + results_per_page - 1) // results_per_page,
         }
         return render(request, 'search.html', context)
+    except requests.RequestException as e:
+        print(f"API request failed: {e}")
+        messages.error(request, "An error occurred while searching. Please try again later.")
     except Exception as e:
-        messages.error(request, f"An error occurred: {str(e)}")
-        return render(request, 'error.html', status=500)
+        print(f"An unexpected error occurred: {e}")
+        messages.error(request, "An unexpected error occurred. Please try again.")
+    
+    return render(request, 'search.html', {'query': query})
 
+def search_suggestions(request):
+    query = request.GET.get('q', '')
+    if len(query) >= 3:
+        suggestions = Recipe.objects.filter(title__icontains=query)[:5]
+        return JsonResponse({'suggestions': [recipe.title for recipe in suggestions]})
+    return JsonResponse({'suggestions': []})
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('login')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid username or password')
+    return render(request, 'login.html')  
+                        
 def main(request):
     context = {}
     return render(request, 'main.html', context)
@@ -146,93 +178,47 @@ def profile(request):
     context = {}
     return render(request, 'profile.html', context)
 
-def saved_recipes(request):
-    context = {}
-    return render(request, 'saved_recipes.html', context)
-
-
 def recipe_detail(request, recipe_id):
-    # Fetch recipe details from API
-    url = f"{settings.THEMEALDB_API_URL}lookup.php?i={recipe_id}"
-    response = requests.get(url)
-    data = response.json()
-
-    if not data['meals']:
-        # Handle case where recipe is not found
-        return render(request, 'error.html', {'message': 'Recipe not found'})
-
-    recipe = data['meals'][0]
-
-    # Process ingredients
-    ingredients = []
-    for i in range(1, 21):  # TheMealDB provides up to 20 ingredients
-        ingredient = recipe[f'strIngredient{i}']
-        measure = recipe[f'strMeasure{i}']
-        if ingredient and ingredient.strip():
-            ingredients.append({
-                'name': ingredient,
-                'measure': measure
-            })
-
-    # Process instructions
-    instructions = recipe['strInstructions'].split('\r\n')
-    instructions = [step for step in instructions if step.strip()]
-
-    context = {
-        'recipe': recipe,
-        'ingredients': ingredients,
-        'instructions': instructions,
-    }
-
-    return render(request, 'recipe_detail.html', context)
-
-
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            profile = UserProfile.objects.create(user=user)
-            
-            # Send verification email
-            subject = 'Verify your email'
-            message = f'Click the link to verify your email: {request.build_absolute_uri(reverse("verify_email", args=[str(profile.verification_token)]))})'
-            send_mail(subject, message, 'from@example.com', [user.email])
-            
-            return redirect('verification_sent')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'signup.html', {'form': form})
-
-def verify_email(request, token):
     try:
-        profile = UserProfile.objects.get(verification_token=token)
-        profile.email_verified = True
-        profile.save()
-        return redirect('email_verified')
-    except UserProfile.DoesNotExist:
-        return redirect('invalid_token')
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                if hasattr(user, 'userprofile') and user.userprofile.email_verified:
-                    login(request, user)
-                    return redirect('home')
-                else:
-                    messages.error(request, 'Please verify your email before logging in.')
-            else:
-                messages.error(request, 'Your account is disabled.')
-        else:
-            messages.error(request, 'Invalid username or password')
-    return render(request, 'login.html')
-
+        url = f'https://www.themealdb.com/api/json/v1/1/lookup.php?i={recipe_id}'
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        if not data['meals']:
+            logger.error(f"No recipe found for id: {recipe_id}")
+            raise Http404("Recipe not found")
+        
+        recipe = data['meals'][0]
+        logger.debug(f"Recipe data: {recipe}")
+        
+        # Extract ingredients and measures
+        ingredients = []
+        for i in range(1, 21):  # TheMealDB provides up to 20 ingredients
+            ingredient = recipe.get(f'strIngredient{i}')
+            measure = recipe.get(f'strMeasure{i}')
+            if ingredient and ingredient.strip():
+                ingredients.append({
+                    'name': ingredient,
+                    'measure': measure
+                })
+        
+        # Split instructions into steps
+        instructions = recipe['strInstructions'].split('\r\n')
+        instructions = [step for step in instructions if step.strip()]
+        
+        context = {
+            'recipe': recipe,
+            'ingredients': ingredients,
+            'instructions': instructions,
+        }
+        return render(request, 'recipe_detail.html', context)
+    except requests.RequestException as e:
+        logger.error(f"API request failed for recipe {recipe_id}: {str(e)}")
+        return render(request, 'error.html', {'error': "Failed to fetch recipe data. Please try again later."})
+    except Exception as e:
+        logger.error(f"Unexpected error in recipe_detail view: {str(e)}")
+        return render(request, 'error.html', {'error': str(e)})
 
 def about(request):
     return render(request, 'about.html')

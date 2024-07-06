@@ -8,7 +8,7 @@
     <h1 class="text-3xl font-bold mb-8 text-center">Saved Recipes</h1>
 
     <div class="mb-8">
-        <form action="{% url 'search_saved_recipes' %}" method="GET" class="flex">
+        <form action="{% url 'saved_recipes' %}" method="GET" class="flex">
             <input type="text" name="q" placeholder="Search saved recipes..." class="flex-grow px-4 py-2 rounded-l-full border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-r-full hover:bg-green-700 transition-colors duration-300">Search</button>
         </form>

@@ -1,0 +1,50 @@
+/* src/styles/custom-styles.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.recipe-card {
+  @apply bg-white rounded-lg shadow-md p-4 transition-transform duration-300 ease-in-out;
+}
+
+.recipe-card:hover {
+  @apply transform scale-105;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300;
+}
+
+.hero {
+  @apply bg-blue-600 text-white py-20 px-4 text-center;
+}
+
+.hero h1 {
+  @apply text-4xl font-bold mb-4;
+}
+
+.hero p {
+  @apply text-xl mb-8;
+}
+
+.bg-gradient-green {
+  background: linear-gradient(to right, #4ade80, #22c55e);
+}
+
+.hover-scale {
+  transition: transform 0.3s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.card-shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-shadow:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Add more custom styles as needed */

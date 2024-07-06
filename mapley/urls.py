@@ -19,6 +19,7 @@ from django.urls import path, include
 from recipes import views
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
+from allauth.account.views import LoginView, SignupView, LogoutView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -30,12 +31,13 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('api/recipes/', views.recipe_list_api, name='recipe_list_api'),
     path('api/cuisines/', views.cuisine_list_api, name='cuisine_list_api'),
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('signup/', SignupView.as_view(template_name='signup.html'), name='signup'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('', include('recipes.urls')),
+    path('accounts/', include('allauth.urls')),
 ]

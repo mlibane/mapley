@@ -30,7 +30,7 @@
 
     <div class="bg-white shadow-md rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-4">Add to Meal Plan</h2>
-        <form action="{% url 'add_to_meal_plan' %}" method="POST" class="space-y-4">
+        <form action="{% url 'meal_planner' %}" method="POST" class="space-y-4">
             {% csrf_token %}
             <div>
                 <label for="day" class="block mb-2">Day:</label>

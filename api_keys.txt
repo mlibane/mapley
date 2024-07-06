@@ -1,3 +1,0 @@
-mapley-recipe-search:40bdaf65ae91044f74a2d7a30b8b77ec
-mapley-nutrional-analysis:44fe500274d7ff83930cb9e33745a261
-mapley-food-database:ec50a58d435f9a5005dddccf5d67dd10

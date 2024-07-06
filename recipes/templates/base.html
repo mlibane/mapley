@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mapley - Discover Delicious Recipes{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'styles/index.css' %}" rel="stylesheet">
     <link href="{% static 'styles/custom-styles.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
@@ -32,8 +33,13 @@
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
-                <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">Sign Up</a>
-                <a href="{% url 'login' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors duration-300">Login</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'email' %}" class="text-gray-600 hover:text-green-600">Change E-mail</a>
+                    <a href="{% url 'logout' %}" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors duration-300">Sign Out</a>
+                {% else %}
+                    <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">Sign Up</a>
+                    <a href="{% url 'login' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors duration-300">Login</a>                
+                {% endif %}
             </div>
         </nav>
     </header>
@@ -82,15 +88,21 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Connect With Us</h3>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white hover:text-green-400 transition-colors duration-200"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@libs.m5" target="_blank" rel="noopener noreferrer" class="text-white hover:text-green-400 transition-colors duration-200">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://www.snapchat.com/add/libs.m5" target="_blank" rel="noopener noreferrer" class="text-white hover:text-green-400 transition-colors duration-200">
+                            <i class="fab fa-snapchat-ghost"></i>
+                        </a>
+                        <a href="https://www.instagram.com/libs.m5" target="_blank" rel="noopener noreferrer" class="text-white hover:text-green-400 transition-colors duration-200">
+                            <i class="fab fa-instagram"></i>
+                        </a>
                     </div>
-                </div>
+                </div>                
                 <div>
                     <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Newsletter</h3>
                     <form class="flex">
-                        <input type="email" placeholder="Your email" class="flex-grow px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="email" placeholder="Your email" class="flex-grow px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black" style="color: black;">
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition-colors duration-300">Subscribe</button>
                     </form>
                 </div>

@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <form action="{% url 'update_profile' %}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{% url 'profile' %}" method="POST" enctype="multipart/form-data" class="space-y-4">
             {% csrf_token %}
             <div>
                 <label for="first_name" class="block mb-1 font-medium">First Name</label>
@@ -42,18 +42,6 @@
         </form>
 
         <hr class="my-8">
-
-        <h3 class="text-xl font-semibold mb-4">Account Settings</h3>
-        <ul class="space-y-2">
-            <li>
-                <a href="{% url 'change_password' %}" class="text-blue-600 hover:text-blue-700">Change Password</a>
-            </li>
-            <li>
-                <a href="{% url 'email_preferences' %}" class="text-blue-600 hover:text-blue-700">Email Preferences</a>
-            </li>
-            <li>
-                <a href="{% url 'delete_account' %}" class="text-red-600 hover:text-red-700" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">Delete Account</a>
-            </li>
         </ul>
     </div>
 </div>

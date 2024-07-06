@@ -1,7 +1,10 @@
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 import random
+
 
 BASE_URL = 'https://www.themealdb.com/api/json/v1/1/'
 
@@ -31,7 +34,13 @@ def get_recipe_from_api(recipe_id):
         print(f"API request failed: {e}")
         return None
 
-def search_recipes_api(query, category=None, offset=0, number=10):
+def search_recipes_api(query='', category=None):
+    cache_key = f'all_recipes_{category}_{query}'
+    cached_recipes = cache.get(cache_key)
+    
+    if cached_recipes:
+        return cached_recipes
+
     base_url = settings.THEMEALDB_API_URL
     
     if category:
@@ -41,8 +50,8 @@ def search_recipes_api(query, category=None, offset=0, number=10):
         url = f"{base_url}search.php"
         params = {'s': query}
     else:
-        url = f"{base_url}random.php"
-        params = {}
+        url = f"{base_url}search.php"
+        params = {'s': ''}  # This will return all meals
 
     try:
         response = requests.get(url, params=params)
@@ -50,31 +59,55 @@ def search_recipes_api(query, category=None, offset=0, number=10):
         data = response.json()
         
         meals = data.get('meals', [])
-        total_results = len(meals)
         
-        # Apply pagination
-        paginated_meals = meals[offset:offset+number]
+        # Fetch detailed information for each recipe
+        detailed_meals = [get_recipe_by_id(meal['idMeal']) for meal in meals]
         
-        return {
-            'hits': paginated_meals,
-            'count': total_results
+        result = {
+            'meals': detailed_meals,
+            'total_results': len(detailed_meals)
         }
+        
+        cache.set(cache_key, result, timeout=3600)  # Cache for 1 hour
+        return result
     except requests.RequestException as e:
         print(f"API request failed: {e}")
-        return None
+        return {'meals': [], 'total_results': 0}
     
 def search_recipes(query, offset=0, number=10):
-    url = f"{BASE_URL}search.php"
-    params = {'s': query}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        meals = data['meals'] or []
-        return {
-            'hits': meals[offset:offset+number],
-            'count': len(meals)
-        }
-    return None 
+    cache_key = f'search_results_{query}_{offset}_{number}'
+    cached_results = cache.get(cache_key)
+
+    if cached_results is not None:
+        return cached_results
+
+    # First, try an exact match
+    exact_matches = Recipe.objects.filter(
+        Q(title__icontains=query) | 
+        Q(ingredients__icontains=query) |
+        Q(instructions__icontains=query)
+    )
+
+    # If no exact matches, use full-text search
+    if not exact_matches:
+        search_vector = SearchVector('title', weight='A') + \
+                        SearchVector('ingredients', weight='B') + \
+                        SearchVector('instructions', weight='C')
+        search_query = SearchQuery(query)
+        results = Recipe.objects.annotate(
+            rank=SearchRank(search_vector, search_query)
+        ).filter(rank__gte=0.3).order_by('-rank')
+    else:
+        results = exact_matches
+
+    total_results = results.count()
+    paginated_results = results[offset:offset+number]
+
+    cache.set(cache_key, results, timeout=3600)  # Cache for 1 hour
+    return {
+        'results': paginated_results,
+        'total_results': total_results
+    }
 
 def get_cuisines():
     cache_key = 'cuisines'
@@ -93,12 +126,12 @@ def get_cuisines():
 
 def get_popular_categories():
     return [
-        {'name': 'Breakfast', 'link': '/recipes?category=breakfast'},
-        {'name': 'Lunch', 'link': '/recipes?category=lunch'},
-        {'name': 'Dinner', 'link': '/recipes?category=dinner'},
-        {'name': 'Desserts', 'link': '/recipes?category=desserts'},
-        {'name': 'Vegetarian', 'link': '/recipes?category=vegetarian'},
-        {'name': 'Quick & Easy', 'link': '/recipes?category=quick-easy'}
+        {'name': 'Breakfast', 'link': '/recipes/?category=Breakfast'},
+        {'name': 'Chicken', 'link': '/recipes/?category=Chicken'},
+        {'name': 'Dessert', 'link': '/recipes/?category=Dessert'},
+        {'name': 'Pasta', 'link': '/recipes/?category=Pasta'},
+        {'name': 'Seafood', 'link': '/recipes/?category=Seafood'},
+        {'name': 'Vegetarian', 'link': '/recipes/?category=Vegetarian'}
     ]
 
 def get_popular_recipes(count=8):
@@ -120,29 +153,45 @@ def get_popular_recipes(count=8):
     return recipes
 
 def get_recipe_by_id(recipe_id):
-    url = f"{BASE_URL}lookup.php"
-    params = {'i': recipe_id}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
+    cache_key = f'recipe_{recipe_id}'
+    cached_recipe = cache.get(cache_key)
+    
+    if cached_recipe:
+        return cached_recipe
+
+    url = f'{settings.THEMEALDB_API_URL}lookup.php?i={recipe_id}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
         data = response.json()
-        return data['meals'][0] if data['meals'] else None
+        if data['meals']:
+            recipe = data['meals'][0]
+            cache.set(cache_key, recipe, timeout=3600)  # Cache for 1 hour
+            return recipe
+    except requests.RequestException as e:
+        print(f"Error fetching recipe {recipe_id}: {str(e)}")
     return None
 
 def get_featured_recipes(count=6):
-    base_url = settings.THEMEALDB_API_URL
-    featured_recipes = []
+    cache_key = 'featured_recipes'
+    featured_recipes = cache.get(cache_key)
 
-    for _ in range(count):
-        try:
-            response = requests.get(f"{base_url}random.php")
-            response.raise_for_status()
-            data = response.json()
-            if data['meals'] and len(data['meals']) > 0:
-                featured_recipes.append(data['meals'][0])
-        except requests.RequestException as e:
-            print(f"Error fetching recipe: {e}")
+    if featured_recipes is None:
+        featured_recipes = []
+        for _ in range(count):
+            try:
+                response = requests.get(f"{settings.THEMEALDB_API_URL}random.php")
+                response.raise_for_status()
+                data = response.json()
+                if data['meals'] and len(data['meals']) > 0:
+                    featured_recipes.append(data['meals'][0])
+            except requests.RequestException as e:
+                print(f"Error fetching recipe: {e}")
 
-    return featured_recipes
+        # Cache the featured recipes for 1 hour
+        cache.set(cache_key, featured_recipes, 60 * 60)
+
+    return featured_recipes[:count]
 
 def get_personalized_recipes(num_recipes=10):
     cache_key = f'personalized_recipes_{num_recipes}'

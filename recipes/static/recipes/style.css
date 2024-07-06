@@ -5,11 +5,15 @@
 
 /* Custom styles */
 
+
 /* Global */
 body {
     @apply bg-gray-100 font-sans;
 }
 
+.newsletter input[type="email"] {
+    @apply text-black;
+}
 .container {
     @apply w-full max-w-full px-4 mx-auto;
 }
