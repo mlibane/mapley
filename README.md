@@ -32,7 +32,6 @@ We believe that cooking is not just about nourishment, but also about creativity
    ```
    git clone https://github.com/yourusername/mapley.git
    cd mapley
-
 2. Create a virtual environment and activate it:
    ```
    python -m venv venv
