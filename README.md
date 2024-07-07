@@ -1,13 +1,15 @@
 ```markdown
 # Mapley
 
-Mapley is a web application dedicated to bringing the joy of cooking to everyone. Our platform aims to inspire home cooks of all skill levels to explore new flavors, try exciting recipes, and share their culinary experiences with others.
+Mapley is a web application dedicated to bringing the joy of cooking to everyone. Our platform aims to inspire home cooks of
+all skill levels to explore new flavors, try exciting recipes, and share their culinary experiences with others.
 
-## Our Mission
+# Our Mission
 
-We believe that cooking is not just about nourishment, but also about creativity, culture, and connection. Through Mapley, we aim to make cooking accessible, enjoyable, and rewarding for all.
+We believe that cooking is not just about nourishment, but also about creativity, culture, and connection.
+Through Mapley, we aim to make cooking accessible, enjoyable, and rewarding for all.
 
-## Features
+# Features
 
 - Thousands of carefully curated recipes
 - Step-by-step cooking instructions
@@ -15,10 +17,11 @@ We believe that cooking is not just about nourishment, but also about creativity
 - A vibrant community of food lovers
 - Cooking tips and tricks from experienced chefs
 
-## Technologies Used
+# Technologies Used
 
 - Django 5.0.6
 - React
+- Tailwind CSS
 - PostgreSQL
 - Gunicorn
 - Whitenoise
@@ -26,23 +29,23 @@ We believe that cooking is not just about nourishment, but also about creativity
 - Django Allauth
 - Supabase
 
+```
+
 ## Setup and Installation
-   ```
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/mapley.git
+   git clone https://github.com/mlibane/mapley.git
    cd mapley
-2. Create a virtual environment and activate it:
+   ```
+3. Create a virtual environment and activate it:
    ```
    python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   venv\Scripts\activate
    ```
-3. Install the required packages:
+4. Install the required packages:
    ```
    pip install -r requirements.txt
    ```
-
-4. Set up your environment variables (database credentials, secret key, etc.)
 
 5. Run migrations:
    ```
@@ -65,4 +68,4 @@ We welcome contributions to Mapley! Please read our contributing guidelines befo
 - **Sustainability**: We promote eco-friendly cooking practices
 - **Community**: We foster a supportive environment for all cooks
 - **Innovation**: We continuously improve our platform and recipes
-```
+
