@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load socialaccount %}
+{% load account socialaccount %}
+{% load static %}
 
 {% block content %}
 <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -37,7 +38,7 @@
                             {{ field.label }}
                         </label>
                         <div class="mt-1">
-                            {{ field }}
+                            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.field.required %}required{% endif %} class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         </div>
                         {% if field.errors %}
                             <p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>

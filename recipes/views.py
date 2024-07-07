@@ -77,7 +77,7 @@ def cuisine_list_api(request):
 def recipes(request):
     category = request.GET.get('category')
     page = request.GET.get('page', 1)
-    recipes_per_page = 24  # Adjust this number as needed
+    recipes_per_page = 9  # Adjust this number as needed
 
     try:
         recipes_data = search_recipes_api(category=category)
@@ -103,7 +103,7 @@ def recipes(request):
 def search(request):
     query = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
-    results_per_page = 10
+    results_per_page = 9
     
     if not query:
         return render(request, 'search.html')
@@ -194,7 +194,7 @@ def recipe_detail(request, recipe_id):
         
         # Extract ingredients and measures
         ingredients = []
-        for i in range(1, 21):  # TheMealDB provides up to 20 ingredients
+        for i in range(1, 31):  # TheMealDB provides up to 30 ingredients
             ingredient = recipe.get(f'strIngredient{i}')
             measure = recipe.get(f'strMeasure{i}')
             if ingredient and ingredient.strip():
@@ -236,28 +236,11 @@ def create_recipe(request):
 def verification_sent(request):
     return render(request, 'verification_sent.html')
 
-def email_verified(request):
-    return render(request, 'email_verified.html')
+def email_confirmation(request):
+    return render(request, 'email_confirmation.html')
 
 def invalid_token(request):
     return render(request, 'invalid_token.html')
-
-
-class CuisineViewSet(viewsets.ModelViewSet):
-    queryset = Cuisine.objects.all()
-    serializer_class = CuisineSerializer
-
-class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
-
-class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-
-class MealPlanViewSet(viewsets.ModelViewSet):
-    queryset = MealPlan.objects.all()
-    serializer_class = MealPlanSerializer
 
 def error_404(request, exception):
     return render(request, 'error.html', {'error_message': 'Page not found'}, status=404)
