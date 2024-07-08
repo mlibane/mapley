@@ -139,6 +139,22 @@ def search(request):
     
     return render(request, 'search.html', {'query': query})
 
+def recipes_by_category(request, category):
+    recipes_data = search_recipes_api(category=category)
+    context = {
+        'recipes': recipes_data.get('meals', []),
+        'category': category,
+    }
+    return render(request, 'recipes.html', context)
+
+def recipes_by_cuisine(request, cuisine):
+    recipes_data = search_recipes_api(query=cuisine)
+    context = {
+        'recipes': recipes_data.get('meals', []),
+        'cuisine': cuisine,
+    }
+    return render(request, 'recipes.html', context)
+
 def search_suggestions(request):
     query = request.GET.get('q', '')
     if len(query) >= 3:

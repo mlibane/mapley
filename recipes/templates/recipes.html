@@ -29,11 +29,7 @@
                             <p class="text-gray-600 text-sm mb-2">Cuisine: {{ recipe.strArea }}</p>
                         {% endif %}
                         {% if recipe.strTags %}
-                            <div class="mb-2">
-                                {% for tag in recipe.strTags.split %}
-                                    <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#{{ tag }}</span>
-                                {% endfor %}
-                            </div>
+                            <div class="mb-2 tags-container" data-tags="{{ recipe.strTags }}"></div>
                         {% endif %}
                         {% if recipe.strInstructions %}
                             <p class="text-gray-600 text-sm mb-4">{{ recipe.strInstructions|truncatewords:20 }}</p>
@@ -87,6 +83,22 @@
         <p class="text-center text-gray-500">No recipes found.</p>
     {% endif %}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tagContainers = document.querySelectorAll('.tags-container');
+        tagContainers.forEach(container => {
+            const tagsString = container.dataset.tags;
+            const tags = tagsString.split(',').map(tag => tag.trim());
+            
+            tags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2';
+                span.textContent = tag.startsWith('#') ? tag : `#${tag}`;
+                container.appendChild(span);
+            });
+        });
+    });
+</script>
 {% endblock %}
 
 {% block extra_js %}

@@ -68,4 +68,3 @@ We welcome contributions to Mapley! Please read our contributing guidelines befo
 - **Sustainability**: We promote eco-friendly cooking practices
 - **Community**: We foster a supportive environment for all cooks
 - **Innovation**: We continuously improve our platform and recipes
-
