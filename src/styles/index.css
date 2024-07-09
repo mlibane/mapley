@@ -3,6 +3,16 @@
 @import 'tailwindcss/utilities';
 
 /* Custom styles */
+
+        .nav-links {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            width: 435px; /* Adjust this value to match the width between 'Delicious' and 'Recipes' in your hero text */
+        }
+
 body {
   @apply min-h-screen bg-gray-100;
 }

@@ -3,61 +3,38 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Custom styles */
 
+/* Custom styles */
 
 /* Global */
 body {
     @apply bg-gray-100 font-sans;
 }
 
-.newsletter input[type="email"] {
-    @apply text-black;
-}
 .container {
     @apply w-full max-w-full px-4 mx-auto;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes scaleIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-.animate-fadeIn {
-    animation: fadeIn 0.5s ease-out;
-}
-
-.animate-slideDown {
-    animation: slideDown 0.5s ease-out;
-}
-
-.animate-slideUp {
-    animation: slideUp 0.5s ease-out;
-}
-
-.animate-scaleIn {
-    animation: scaleIn 0.5s ease-out;
 }
 
 /* Header */
 header {
     @apply bg-white shadow-md sticky top-0 z-50 transition-all duration-300;
+}
+
+.nav-container {
+    @apply flex justify-between items-center w-full max-w-7xl mx-auto px-4;
+    height: 4rem;
+}
+
+.nav-logo {
+    @apply flex-1;
+}
+
+.nav-links {
+    @apply flex-2 flex justify-center;
+}
+
+.nav-actions {
+    @apply flex-1 flex justify-end;
 }
 
 .logo {
