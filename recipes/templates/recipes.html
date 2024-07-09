@@ -3,18 +3,22 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">{% if category %}{{ category }} Recipes{% else %}All Recipes{% endif %}</h1>
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">
+        {% if category %}{{ category }} Recipes
+        {% elif cuisine %}{{ cuisine }} Cuisine Recipes
+        {% elif query %}Search Results for "{{ query }}"
+        {% else %}All Recipes
+        {% endif %}
+    </h1>
     
-    {% if error_message %}
-        <p class="text-red-500 mb-4">{{ error_message }}</p>
-    {% endif %}
+    <p class="text-gray-600 mb-6">Total recipes: {{ total_results }}</p>
 
     {% if recipes %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             {% for recipe in recipes %}
                 <div class="bg-white rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
                     {% if recipe.strMealThumb %}
-                        <img src="{{ recipe.strMealThumb }}" alt="{{ recipe.strMeal }}" class="w-full h-48 object-cover lazy" loading="lazy">
+                        <img src="{{ recipe.strMealThumb }}" alt="{{ recipe.strMeal }}" class="w-full h-48 object-cover">
                     {% else %}
                         <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
                             <span class="text-gray-500">No image available</span>
@@ -32,7 +36,7 @@
                             <div class="mb-2 tags-container" data-tags="{{ recipe.strTags }}"></div>
                         {% endif %}
                         {% if recipe.strInstructions %}
-                            <p class="text-gray-600 text-sm mb-4">{{ recipe.strInstructions|truncatewords:20 }}</p>
+                            <p class="text-gray-600 text-sm mb-4">{{ recipe.strInstructions|truncatewords:30 }}</p>
                         {% endif %}
                         {% if recipe.idMeal %}
                             <a href="{% url 'recipe_detail' recipe_id=recipe.idMeal %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">View Recipe</a>
@@ -44,36 +48,40 @@
             {% endfor %}
         </div>
 
-        {% if recipes.has_other_pages %}
-            <div class="flex justify-center items-center mt-12">
+        {% if total_pages > 1 %}
+            <div class="flex justify-center items-center mt-8">
                 <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                    {% if recipes.has_previous %}
-                        <a href="?page={{ recipes.previous_page_number }}{% if category %}&category={{ category }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    {% if page > 1 %}
+                        <a href="?page=1{% if category %}&category={{ category }}{% elif cuisine %}&cuisine={{ cuisine }}{% elif query %}&q={{ query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-green-50">
+                            <span class="sr-only">First</span>
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ page|add:'-1' }}{% if category %}&category={{ category }}{% elif cuisine %}&cuisine={{ cuisine }}{% elif query %}&q={{ query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-green-50">
                             <span class="sr-only">Previous</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
+                            <i class="fas fa-angle-left"></i>
                         </a>
                     {% endif %}
                     
-                    {% for num in recipes.paginator.page_range %}
-                        {% if recipes.number == num %}
+                    {% for p in page_range %}
+                        {% if p == page %}
                             <span class="relative inline-flex items-center px-4 py-2 border border-green-500 bg-green-50 text-sm font-medium text-green-600">
-                                {{ num }}
+                                {{ p }}
                             </span>
-                        {% elif num > recipes.number|add:'-3' and num < recipes.number|add:'3' %}
-                            <a href="?page={{ num }}{% if category %}&category={{ category }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                {{ num }}
+                        {% else %}
+                            <a href="?page={{ p }}{% if category %}&category={{ category }}{% elif cuisine %}&cuisine={{ cuisine }}{% elif query %}&q={{ query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-green-50">
+                                {{ p }}
                             </a>
                         {% endif %}
                     {% endfor %}
 
-                    {% if recipes.has_next %}
-                        <a href="?page={{ recipes.next_page_number }}{% if category %}&category={{ category }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    {% if page < total_pages %}
+                        <a href="?page={{ page|add:'1' }}{% if category %}&category={{ category }}{% elif cuisine %}&cuisine={{ cuisine }}{% elif query %}&q={{ query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-green-50">
                             <span class="sr-only">Next</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ total_pages }}{% if category %}&category={{ category }}{% elif cuisine %}&cuisine={{ cuisine }}{% elif query %}&q={{ query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-green-50">
+                            <span class="sr-only">Last</span>
+                            <i class="fas fa-angle-double-right"></i>
                         </a>
                     {% endif %}
                 </nav>
@@ -83,45 +91,21 @@
         <p class="text-center text-gray-500">No recipes found.</p>
     {% endif %}
 </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tagContainers = document.querySelectorAll('.tags-container');
-        tagContainers.forEach(container => {
-            const tagsString = container.dataset.tags;
-            const tags = tagsString.split(',').map(tag => tag.trim());
-            
-            tags.forEach(tag => {
-                const span = document.createElement('span');
-                span.className = 'inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2';
-                span.textContent = tag.startsWith('#') ? tag : `#${tag}`;
-                container.appendChild(span);
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    const tagContainers = document.querySelectorAll('.tags-container');
+    tagContainers.forEach(container => {
+        const tagsString = container.dataset.tags;
+        const tags = tagsString.split(',').map(tag => tag.trim());
+        
+        tags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2';
+            span.textContent = tag.startsWith('#') ? tag : `#${tag}`;
+            container.appendChild(span);
         });
     });
-</script>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
-
-        if ("IntersectionObserver" in window) {
-            let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        let lazyImage = entry.target;
-                        lazyImage.src = lazyImage.dataset.src;
-                        lazyImage.classList.remove("lazy");
-                        lazyImageObserver.unobserve(lazyImage);
-                    }
-                });
-            });
-
-            lazyImages.forEach(function(lazyImage) {
-                lazyImageObserver.observe(lazyImage);
-            });
-        }
-    });
+});
 </script>
 {% endblock %}

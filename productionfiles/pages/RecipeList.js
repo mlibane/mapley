@@ -4,7 +4,7 @@ import RecipeCardWrapper from '../components/RecipeCardWrapper';
 import SearchBar from '../components/SearchBar';
 import { fetchRecipes } from '../utils/api';
 
-const RecipeList = () => {
+const recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -37,4 +37,4 @@ const RecipeList = () => {
   );
 };
 
-export default RecipeList;
+export default recipes;

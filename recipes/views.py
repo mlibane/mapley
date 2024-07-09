@@ -18,7 +18,7 @@ from .utils import (
     search_recipes_api,
     get_featured_recipes,
 )
-from .serializers import CuisineSerializer, RecipeSerializer, UserProfileSerializer, MealPlanSerializer
+from django.views.decorators.cache import cache_page
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
@@ -74,32 +74,41 @@ def cuisine_list_api(request):
     cuisines = get_cuisines()
     return Response(cuisines)
 
+@cache_page(60)  # Cache this view for 1 minute
 def recipes(request):
     category = request.GET.get('category')
-    page = request.GET.get('page', 1)
-    recipes_per_page = 9  # Adjust this number as needed
+    cuisine = request.GET.get('cuisine')
+    query = request.GET.get('q')
+    page = int(request.GET.get('page', 1))
+    recipes_per_page = 9
 
-    try:
-        recipes_data = search_recipes_api(category=category)
-        all_recipes = recipes_data.get('meals', [])
-        
-        paginator = Paginator(all_recipes, recipes_per_page)
-        try:
-            recipes = paginator.page(page)
-        except PageNotAnInteger:
-            recipes = paginator.page(1)
-        except EmptyPage:
-            recipes = paginator.page(paginator.num_pages)
-        
-        context = {
-            'recipes': recipes,
-            'category': category,
-        }
-        return render(request, 'recipes.html', context)
-    except Exception as e:
-        logger.exception(f"Error in recipes view: {str(e)}")
-        return render(request, 'recipes.html', {'error_message': str(e)})
+    recipes_data = search_recipes_api(query=query, category=category, cuisine=cuisine, page=page, per_page=recipes_per_page)
+
+    # Calculate pagination range
+    total_pages = recipes_data['total_pages']
+    if total_pages <= 5:
+        page_range = range(1, total_pages + 1)
+    else:
+        if page <= 3:
+            page_range = range(1, 6)
+        elif page > total_pages - 3:
+            page_range = range(total_pages - 4, total_pages + 1)
+        else:
+            page_range = range(page - 2, page + 3)
+
+    context = {
+        'recipes': recipes_data['meals'],
+        'category': category,
+        'cuisine': cuisine,
+        'query': query,
+        'page': page,
+        'page_range': page_range,
+        'total_pages': total_pages,
+        'total_results': recipes_data['total_results'],
+    }
     
+    return render(request, 'recipes.html', context)
+
 def search(request):
     query = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
@@ -140,18 +149,56 @@ def search(request):
     return render(request, 'search.html', {'query': query})
 
 def recipes_by_category(request, category):
-    recipes_data = search_recipes_api(category=category)
+    page = int(request.GET.get('page', 1))
+    recipes_per_page = 9
+    recipes_data = search_recipes_api(category=category, page=page, per_page=recipes_per_page)
+    
+    # Calculate pagination range
+    total_pages = recipes_data['total_pages']
+    if total_pages <= 5:
+        page_range = range(1, total_pages + 1)
+    else:
+        if page <= 3:
+            page_range = range(1, 6)
+        elif page > total_pages - 3:
+            page_range = range(total_pages - 4, total_pages + 1)
+        else:
+            page_range = range(page - 2, page + 3)
+    
     context = {
-        'recipes': recipes_data.get('meals', []),
+        'recipes': recipes_data['meals'],
         'category': category,
+        'page': page,
+        'page_range': page_range,
+        'total_pages': total_pages,
+        'total_results': recipes_data['total_results'],
     }
     return render(request, 'recipes.html', context)
 
 def recipes_by_cuisine(request, cuisine):
-    recipes_data = search_recipes_api(query=cuisine)
+    page = int(request.GET.get('page', 1))
+    recipes_per_page = 9
+    recipes_data = search_recipes_api(cuisine=cuisine, page=page, per_page=recipes_per_page)
+    
+    # Calculate pagination range
+    total_pages = recipes_data['total_pages']
+    if total_pages <= 5:
+        page_range = range(1, total_pages + 1)
+    else:
+        if page <= 3:
+            page_range = range(1, 6)
+        elif page > total_pages - 3:
+            page_range = range(total_pages - 4, total_pages + 1)
+        else:
+            page_range = range(page - 2, page + 3)
+    
     context = {
-        'recipes': recipes_data.get('meals', []),
+        'recipes': recipes_data['meals'],
         'cuisine': cuisine,
+        'page': page,
+        'page_range': page_range,
+        'total_pages': total_pages,
+        'total_results': recipes_data['total_results'],
     }
     return render(request, 'recipes.html', context)
 
