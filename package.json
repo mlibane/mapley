@@ -18,7 +18,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:css": "tailwindcss -i ./src/styles/index.css -o ./recipes/static/styles/output.css --watch"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",

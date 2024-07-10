@@ -2,8 +2,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./templates/**/*.html",
-    "./static/**/*.js",
-    "./**/*.py",  // This will capture Django views that might contain class names
+    "./static/**/*.js",  // This will capture Django views that might contain class names
   ],
   theme: {
     extend: {

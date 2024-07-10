@@ -145,8 +145,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'src'),
     os.path.join(BASE_DIR, 'recipes', 'static'),
+    os.path.join(BASE_DIR, 'src'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'productionfiles')
 

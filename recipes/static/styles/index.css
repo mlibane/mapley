@@ -1,0 +1,62 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom styles */
+
+        .nav-links {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            width: 435px; /* Adjust this value to match the width between 'Delicious' and 'Recipes' in your hero text */
+        }
+
+body {
+  @apply min-h-screen bg-gray-100;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.recipe-card {
+  @apply bg-white rounded-lg shadow-md p-4 transition-transform duration-300 ease-in-out;
+}
+
+.recipe-card:hover {
+  @apply transform scale-105;
+}
+
+.btn-primary {
+  @apply bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors duration-300;
+}
+
+.hero {
+  @apply bg-green-600 text-white py-20 px-4 text-center;
+}
+
+.hero h1 {
+  @apply text-4xl font-bold mb-4;
+}
+
+.hero p {
+  @apply text-xl mb-8;
+}
+
+/* Ensure the main content area takes up available space */
+#root {
+  @apply flex flex-col min-h-screen;
+}
+
+main {
+  @apply flex-grow;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
+  }
+}
