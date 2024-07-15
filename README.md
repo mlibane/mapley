@@ -57,10 +57,6 @@ Through Mapley, we aim to make cooking accessible, enjoyable, and rewarding for 
    python manage.py runserver
    ```
 
-## Contributing
-
-We welcome contributions to Mapley! Please read our contributing guidelines before submitting pull requests.
-
 ## Our Values
 
 - **Quality**: We ensure all our recipes are tested and delicious
