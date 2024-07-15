@@ -39,6 +39,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 import requests
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -142,14 +143,13 @@ def recipe_detail(request, recipe_id):
                     'measure': measure
                 })
         
-        # Filter out empty instructions and remove all numbers
+        # Clean up instructions
         instructions = []
         for step in recipe['strInstructions'].split('\r\n'):
-            step = step.strip()
-            # Remove numbers and periods at the beginning of the step
-            step = ' '.join(word for word in step.split() if not word[0].isdigit() and word != '.')
-            if step:
-                instructions.append(step)
+            # Remove "STEP X" prefix and any leading numbers or periods
+            cleaned_step = re.sub(r'^(?:STEP\s*\d*[:.]?\s*|\d+[:.]?\s*|[-•]\s*)', '', step.strip())
+            if cleaned_step:
+                instructions.append(cleaned_step)
         
         context = {
             'recipe': recipe,
