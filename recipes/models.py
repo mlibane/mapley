@@ -53,7 +53,6 @@ class Recipe(models.Model):
             GinIndex(fields=['search_vector']),
         ]
 
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
