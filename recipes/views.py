@@ -142,11 +142,13 @@ def recipe_detail(request, recipe_id):
                     'measure': measure
                 })
         
-        # Filter out empty or numbered-only instructions
+        # Filter out empty instructions and remove all numbers
         instructions = []
         for step in recipe['strInstructions'].split('\r\n'):
             step = step.strip()
-            if step and not step.isdigit() and not step.startswith('.'):
+            # Remove numbers and periods at the beginning of the step
+            step = ' '.join(word for word in step.split() if not word[0].isdigit() and word != '.')
+            if step:
                 instructions.append(step)
         
         context = {
