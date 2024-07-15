@@ -7,6 +7,9 @@ from django.http import Http404, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
 from supabase import create_client, Client
+from rest_framework import generics
+from .models import Recipe
+from .serializers import RecipeSerializer
 import concurrent.futures
 import random
 from .utils import (
@@ -19,7 +22,9 @@ from .utils import (
     get_featured_recipes,
 )
 from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from django.contrib.auth import login, authenticate
+from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import F
@@ -30,6 +35,9 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 import requests
 import logging
 
@@ -108,6 +116,51 @@ def recipes(request):
     }
     
     return render(request, 'recipes.html', context)
+
+def recipe_detail(request, recipe_id):
+    try:
+        url = f'https://www.themealdb.com/api/json/v1/1/lookup.php?i={recipe_id}'
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        if not data['meals']:
+            logger.error(f"No recipe found for id: {recipe_id}")
+            raise Http404("Recipe not found")
+        
+        recipe = data['meals'][0]
+        logger.debug(f"Recipe data: {recipe}")
+        
+        # Extract ingredients and measures
+        ingredients = []
+        for i in range(1, 21):  # TheMealDB provides up to 20 ingredients
+            ingredient = recipe.get(f'strIngredient{i}')
+            measure = recipe.get(f'strMeasure{i}')
+            if ingredient and ingredient.strip():
+                ingredients.append({
+                    'name': ingredient,
+                    'measure': measure
+                })
+        
+        # Filter out empty or numbered-only instructions
+        instructions = []
+        for step in recipe['strInstructions'].split('\r\n'):
+            step = step.strip()
+            if step and not step.isdigit() and not step.startswith('.'):
+                instructions.append(step)
+        
+        context = {
+            'recipe': recipe,
+            'ingredients': ingredients,
+            'instructions': instructions,
+        }
+        return render(request, 'recipe_detail.html', context)
+    except requests.RequestException as e:
+        logger.error(f"API request failed for recipe {recipe_id}: {str(e)}")
+        return render(request, 'error.html', {'error': "Failed to fetch recipe data. Please try again later."})
+    except Exception as e:
+        logger.error(f"Unexpected error in recipe_detail view: {str(e)}")
+        return render(request, 'error.html', {'error': str(e)})
 
 def search(request):
     query = request.GET.get('q', '')
@@ -220,6 +273,37 @@ def login_view(request):
         else:
             messages.error(request, 'Invalid username or password')
     return render(request, 'login.html')  
+
+@method_decorator(cache_page(60 * 15), name='dispatch')
+class RecipeListView(ListView):
+    model = Recipe
+    template_name = 'recipes.html'
+    context_object_name = 'recipes'
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category = self.request.GET.get('category')
+        cuisine = self.request.GET.get('cuisine')
+        query = self.request.GET.get('q')
+        return search_recipes_api(query=query, category=category, cuisine=cuisine)
+
+class RecipeListAPIView(generics.ListAPIView):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    filterset_fields = ['category', 'cuisine']
+    search_fields = ['title', 'description']
+
+class RecipeDetailView(DetailView):
+    model = Recipe
+    template_name = 'recipe_detail.html'
+    context_object_name = 'recipe'
+
+class CreateRecipeView(LoginRequiredMixin, CreateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = 'create_recipe.html'
+    success_url = reverse_lazy('recipes')
                         
 def main(request):
     context = {}
@@ -240,48 +324,6 @@ def saved_recipes(request):
 def profile(request):
     context = {}
     return render(request, 'profile.html', context)
-
-def recipe_detail(request, recipe_id):
-    try:
-        url = f'https://www.themealdb.com/api/json/v1/1/lookup.php?i={recipe_id}'
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        
-        if not data['meals']:
-            logger.error(f"No recipe found for id: {recipe_id}")
-            raise Http404("Recipe not found")
-        
-        recipe = data['meals'][0]
-        logger.debug(f"Recipe data: {recipe}")
-        
-        # Extract ingredients and measures
-        ingredients = []
-        for i in range(1, 31):  # TheMealDB provides up to 30 ingredients
-            ingredient = recipe.get(f'strIngredient{i}')
-            measure = recipe.get(f'strMeasure{i}')
-            if ingredient and ingredient.strip():
-                ingredients.append({
-                    'name': ingredient,
-                    'measure': measure
-                })
-        
-        # Split instructions into steps
-        instructions = recipe['strInstructions'].split('\r\n')
-        instructions = [step for step in instructions if step.strip()]
-        
-        context = {
-            'recipe': recipe,
-            'ingredients': ingredients,
-            'instructions': instructions,
-        }
-        return render(request, 'recipe_detail.html', context)
-    except requests.RequestException as e:
-        logger.error(f"API request failed for recipe {recipe_id}: {str(e)}")
-        return render(request, 'error.html', {'error': "Failed to fetch recipe data. Please try again later."})
-    except Exception as e:
-        logger.error(f"Unexpected error in recipe_detail view: {str(e)}")
-        return render(request, 'error.html', {'error': str(e)})
 
 def about(request):
     return render(request, 'about.html')

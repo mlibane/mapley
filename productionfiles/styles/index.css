@@ -3,6 +3,8 @@
 @import 'tailwindcss/utilities';
 
 /* Custom styles */
+
+
 body {
   @apply min-h-screen bg-gray-100;
 }

@@ -1,23 +1,14 @@
-import React from 'react';
+// src/App.js
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Hero from './components/Hero';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
-import FeaturedRecipes from './components/FeaturedRecipes';
-import RecipeList from './components/RecipeList';
+import ErrorBoundary from './components/ErrorBoundary';
 
-const Home = () => (
-  <>
-    <Hero />
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
-      <FeaturedRecipes />
-      <h2 className="text-2xl font-bold mt-8 mb-4">All Recipes</h2>
-      <RecipeList />
-    </div>
-  </>
-);
+const Home = lazy(() => import('./pages/Home'));
+const FeaturedRecipes = lazy(() => import('./components/FeaturedRecipes'));
+const RecipeList = lazy(() => import('./components/RecipeList'));
 
 const App = () => {
   return (
@@ -26,13 +17,17 @@ const App = () => {
         <Navbar />
         <div className="flex flex-grow">
           <Sidebar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/featured" element={<FeaturedRecipes />} />
-              <Route path="/recipes" element={<RecipeList />} />
-            </Routes>
-          </main>
+          <ErrorBoundary>
+            <main className="flex-grow">
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/featured" element={<FeaturedRecipes />} />
+                  <Route path="/recipes" element={<RecipeList />} />
+                </Routes>
+              </Suspense>
+            </main>
+          </ErrorBoundary>
         </div>
         <Footer />
       </div>

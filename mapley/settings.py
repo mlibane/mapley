@@ -231,7 +231,7 @@ ACCOUNT_SIGNUP_FORM_CLASS = None
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 
 # Email settings (update these with your email configuration)
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production
 # Email settings (update these with your email configuration)
 EMAIL_HOST = 'smtp-relay.brevo.com'

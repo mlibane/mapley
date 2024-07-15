@@ -42,6 +42,8 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
     search_vector = SearchVectorField(null=True)
+    name = models.CharField(max_length=20, default='')
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
 
     def generate_slug(self):
         return slugify(self.title)[:100]
@@ -54,7 +56,7 @@ class Recipe(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = self.generate_slug()
+            self.slug = slugify(self.name)
         self.search_vector = SearchVector('title', weight='A') + \
                              SearchVector('description', weight='B') + \
                              SearchVector('ingredients', weight='C') + \
@@ -65,7 +67,11 @@ class Recipe(models.Model):
         return self.title
 
     cooking_time = models.IntegerField(default=30)
+
+    def get_absolute_url(self):
+        return reverse('recipe_detail', kwargs={'slug': self.slug})
     pass
+
 class Tag(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)

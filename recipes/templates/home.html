@@ -1,14 +1,8 @@
 {% extends 'base.html' %}
-{% if debug %}
-<pre>
-Debug: recipes = {{ recipes|pprint }}
-</pre>
-{% endif %}
 {% load static %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <!-- Hero Section -->
     <section class="bg-gradient-to-r from-green-50 to-green-100 py-16 px-4 rounded-lg mb-12">
         <div class="max-w-7xl mx-auto text-center">
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
@@ -29,7 +23,6 @@ Debug: recipes = {{ recipes|pprint }}
         </div>
     </section>
 
-    <!-- Popular Categories Section (Moved up) -->
     <section class="mb-12">
         <h2 class="text-3xl font-semibold mb-6 text-center">Popular Categories</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
@@ -41,7 +34,6 @@ Debug: recipes = {{ recipes|pprint }}
         </div>
     </section>
 
-    <!-- Featured Recipes Section (Moved down) -->
     <section class="mb-12">
         <h2 class="text-3xl font-semibold mb-6 text-center">Featured Recipes</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
